@@ -22,7 +22,12 @@ class ComposerFix
         $target = $this->getTarget($repo->getName());
 
         if (is_dir($target)) {
-            $command = 'git reset --hard origin/' . $repo->getBranch();
+            $commands = [
+                'git clean -f',
+                'git reset --hard origin/' . $repo->getBranch(),
+                'git pull origin ' . $repo->getBranch(),
+            ];
+            $command = implode(' && ', $commands);
             $cwd = $target;
         } else {
             $command = 'git clone ' . $repo->getUrl();
