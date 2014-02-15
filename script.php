@@ -30,10 +30,15 @@ foreach ($repositories as $repository) {
 
     echo "TODO: {$repo->getName()}" . PHP_EOL;
 
+    $jsonFile = $fix->getTarget($repo->getName()) . '/composer.json';
+
     $file = new ComposerFix\File(
         $repo,
-        $fix->getTarget($repo->getName()) . '/composer.json',
+        $jsonFile,
         $repo->getMissing()
     );
     $file->fix();
+
+    $json = new Composer\JSON\JsonFile($jsonFile);
+    $json->validateSchema();
 }

@@ -1,14 +1,16 @@
 {
-    "name": "till/pear-composer-fix",
-    "license": "BSD-2-Clause",
-    "minimum-stability": "stable",
-    "prefer-stable": true,
-    "require": {
-        "knplabs/github-api": "*"
-    },
     "autoload": {
         "psr-0": {
             "PEAR\\ComposerFix": "src"
         }
+    },
+    "description": "Add/repair composer.json files for https://github.com/pear/",
+    "license": "BSD-2-Clause",
+    "minimum-stability": "stable",
+    "name": "till/pear-composer-fix",
+    "prefer-stable": true,
+    "require": {
+        "knplabs/github-api": "*",
+        "composer/composer": "@dev"
     }
 }
