@@ -74,7 +74,11 @@ class File
                 'classmap' => ['./'],
             ];
         case 'description':
-            return 'More info available on: http://pear.php.net/' . $this->name;
+            $description = $this->repo->getDescription();
+            if (!empty($description)) {
+                return $description;
+            }
+            return 'More info available on: http://pear.php.net/package/' . $this->name;
         case 'include-path':
             if ($this->isPSR0()) {
                 return ['./'];

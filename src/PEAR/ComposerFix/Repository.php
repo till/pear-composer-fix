@@ -28,6 +28,11 @@ class Repository
         return $this->data['default_branch'];
     }
 
+    public function getDescription()
+    {
+        return $this->data['description'];
+    }
+
     public function getMissing()
     {
         return $this->missing;
