@@ -98,6 +98,13 @@ class File
         }
     }
 
+    private function extract(&$author, $obj, $prop)
+    {
+        if (property_exists($obj, $prop)) {
+            $author[$prop] = (string) $obj->$prop;
+        }
+    }
+
     private function findAuthors(\SimpleXMLElement $xml)
     {
         if (!property_exists($xml, 'maintainers')) {
@@ -108,14 +115,23 @@ class File
         }
         $authors = [];
         foreach ($xml->maintainers as $maintainer) {
-            array_push($authors,
-                [
-                    'email' => $maintainer->email,
-                    'homepage' => sprintf('http://pear.php.net/user/%s', $maintainer->user),
-                    'name' => $maintainer->name,
-                    'role' => ucfirst($maintainer->role),
-                ]
-            );
+            $user = $maintainer->maintainer;
+
+            $author = [];
+
+            $this->extract($author, $user, 'email');
+            $this->extract($author, $user, 'name');
+            $this->extract($author, $user, 'role');
+
+            if (property_exists($xml, 'channel')) {
+                $author['homepage'] = sprintf(
+                    'http://%s/user/%s',
+                    (string) $xml->channel,
+                    (string) $user->user
+                );
+            }
+
+            array_push($authors, $author);
         }
         return $authors;
     }
