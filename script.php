@@ -13,7 +13,9 @@ $fix = new ComposerFix(
 $client = new Client();
 $client->authenticate($fix->getToken(), null, Client::AUTH_URL_TOKEN);
 
-$repositories = $client->api('user')->repositories($fix->getOrg());
+$repoApi = new ComposerFix\RepoApi($client);
+
+$repositories = $repoApi->getAllRepositories($fix->getOrg());
 foreach ($repositories as $repository) {
 
     $repo = new ComposerFix\Repository($repository, $fix->getStore());
