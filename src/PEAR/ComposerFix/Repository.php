@@ -76,7 +76,12 @@ class Repository
 
     public function needsFixing()
     {
-        $composerJson = $this->store . '/' . $this->getName() . '/composer.json';
+        $repo = sprintf('%s/%s', $this->store, $this->getName());
+        if (!file_exists($repo . '/package.xml')) {
+            return false;
+        }
+
+        $composerJson = $repo . '/composer.json';
         if (!file_exists($composerJson)) {
             $this->missing = $this->checks;
             return true;
