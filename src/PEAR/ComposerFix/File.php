@@ -32,6 +32,7 @@ class File
         foreach ($this->missing as $missing) {
             try {
                 $composer[$missing] = $this->create($missing);
+                $this->updateIgnore();
             } catch (\RuntimeException $e) {
                 // skip for now
                 echo "Skipped: {$missing} for {$this->name}" . PHP_EOL;
@@ -251,5 +252,21 @@ class File
         }
 
         return $this->parsed[$cacheKey] = $xml;
+    }
+
+    private function updateIgnore()
+    {
+        $fileName = $this->getGitRepo() . '/.gitignore';
+        $ignoreFile = '';
+        if (file_exists($fileName)) {
+            $ignoreFile .= file_get_contents($fileName);
+            $ignoreFile .= "\n";
+        }
+
+        $filesToIgnore = ['composer.lock', 'composer.phar', 'vendor'];
+        foreach ($filesToIgnore as $file) {
+            $ignoreFile .= "{$file}\n";
+        }
+        file_put_contents($fileName, $ignoreFile);
     }
 }
