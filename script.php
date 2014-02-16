@@ -24,7 +24,9 @@ foreach ($repositories as $repositoryData) {
         continue;
     }
 
-    $fix->cloneOrUpdate($repo);
+    $fix
+        ->setRepository($repo)
+        ->cloneOrUpdate();
 
     if (!$repo->needsFixing()) {
         continue;

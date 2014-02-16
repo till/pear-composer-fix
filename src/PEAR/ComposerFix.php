@@ -5,6 +5,8 @@ class ComposerFix
 {
     private $config;
 
+    private $currentRepository;
+
     private $descriptors;
 
     public function __construct(array $config, $errorLog)
@@ -17,20 +19,20 @@ class ComposerFix
         ];
     }
 
-    public function cloneOrUpdate(ComposerFix\Repository $repo)
+    public function cloneOrUpdate()
     {
-        $target = $this->getTarget($repo->getName());
+        $target = $this->getTarget($this->currentRepository->getName());
 
         if (is_dir($target)) {
             $commands = [
                 'git clean -f',
-                'git reset --hard origin/' . $repo->getBranch(),
-                'git pull origin ' . $repo->getBranch(),
+                'git reset --hard origin/' . $this->currentRepository->getBranch(),
+                'git pull origin ' . $this->currentRepository->getBranch(),
             ];
             $command = implode(' && ', $commands);
             $cwd = $target;
         } else {
-            $command = 'git clone ' . $repo->getUrl();
+            $command = 'git clone ' . $this->currentRepository->getUrl();
             $cwd = $this->getStore();
         }
 
@@ -42,7 +44,7 @@ class ComposerFix
 
         $status = proc_close($process);
         if ($status !== 0) {
-            echo "Command failed for {$repo->getName()}: {$command}" . PHP_EOL;
+            echo "Command failed for {$this->currentRepository->getName()}: {$command}" . PHP_EOL;
             exit(3);
         }
     }
