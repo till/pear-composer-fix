@@ -65,6 +65,9 @@ class Repository
 
     public function isProcessable()
     {
+        if (null === $this->data['pushed_at']) {
+            return false; // Y U CREATE EMPTY REPOSITORY
+        }
         if ($this->isFork()) {
             return false;
         }
