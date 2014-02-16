@@ -1,0 +1,6 @@
+<?php
+return [
+    'org' => 'pear',
+    'store' => __DIR__ . '/storage',
+    'token' => 'xxx',
+];
