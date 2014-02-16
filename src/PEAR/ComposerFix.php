@@ -24,13 +24,20 @@ class ComposerFix
         $target = $this->getTarget($this->currentRepository->getName());
 
         if (is_dir($target)) {
+
+            $cwd = $target;
+
+            if ($this->isEmpty($cwd)) {
+                return;
+            }
+
             $commands = [
                 'git clean -f',
                 'git reset --hard origin/' . $this->currentRepository->getBranch(),
                 'git pull origin ' . $this->currentRepository->getBranch(),
             ];
             $command = implode(' && ', $commands);
-            $cwd = $target;
+
         } else {
             $command = 'git clone ' . $this->currentRepository->getUrl();
             $cwd = $this->getStore();
@@ -93,5 +100,21 @@ class ComposerFix
 
         $status = proc_close($process);
         return $status;
+    }
+
+    /**
+     * Neat situation: empty repository which the Github API says has been pushed to.
+     *
+     * @param $cwd
+     *
+     * @return bool
+     */
+    private function isEmpty($cwd)
+    {
+        $status = $this->execute("git log", $cwd);
+        if (0 !== $status) {
+            return true;
+        }
+        return false;
     }
 }
