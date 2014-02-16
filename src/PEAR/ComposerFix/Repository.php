@@ -80,7 +80,12 @@ class Repository
     public function needsFixing()
     {
         $repo = sprintf('%s/%s', $this->store, $this->getName());
-        if (!file_exists($repo . '/package.xml')) {
+
+        $packageXml = $repo . '/package.xml';
+        if (!file_exists($packageXml)) {
+            return false;
+        }
+        if (0 == filesize($packageXml)) {
             return false;
         }
 

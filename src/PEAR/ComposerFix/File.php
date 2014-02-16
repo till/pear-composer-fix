@@ -180,6 +180,10 @@ class File
         if (!file_exists($packageXml)) {
             throw new \RuntimeException("No package.xml found: {$this->name}.");
         }
-        return simplexml_load_file($packageXml);
+        $xml = @simplexml_load_file($packageXml);
+        if (false === $xml) {
+            throw new \RuntimeException("Empty or mal-formed package.xml found: {$this->name}");
+        }
+        return $xml;
     }
 }
