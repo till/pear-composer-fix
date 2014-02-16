@@ -71,6 +71,11 @@ foreach ($repositories as $repositoryData) {
         continue;
     }
 
+    if (!$fix->needsUpdate()) {
+        echo "d";
+        continue;
+    }
+
     echo ".";
 
     // branch, commit, push?

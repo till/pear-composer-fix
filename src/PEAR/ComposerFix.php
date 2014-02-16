@@ -77,6 +77,48 @@ class ComposerFix
         return $this->config['token'];
     }
 
+    /**
+     * Find out if a repository contains composer.json and so on, or if it needs to be updated.
+     *
+     * @return bool
+     * @throws \RuntimeException
+     */
+    public function needsUpdate()
+    {
+        $cwd = $this->getTarget($this->currentRepository->getName());
+
+        if ($this->isEmpty($cwd)) {
+            return false;
+        }
+
+        // check for un-committed changes
+        $command = "git diff --exit-code";
+        $status = $this->execute($command, $cwd);
+        if ($status > 0) {
+            return true;
+        }
+
+        // check for un-staged files
+        $command = "git ls-files . --exclude-standard --others";
+        $status = $this->execute($command, $cwd, $output);
+        if (0 !== $status) {
+            throw new \RuntimeException("Command for {$this->currentRepository->getName()} failed: {$command}");
+        }
+
+        if (!empty($output)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * This needs to be used to set the Github repository we're dealing with.
+     *
+     * @param ComposerFix\Repository $repository
+     *
+     * @return $this
+     */
     public function setRepository(ComposerFix\Repository $repository)
     {
         $this->currentRepository = $repository;
