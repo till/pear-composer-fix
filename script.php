@@ -43,6 +43,13 @@ foreach ($repositories as $repositoryData) {
     );
     $file->fix();
 
-    $json = new Composer\JSON\JsonFile($jsonFile);
-    $json->validateSchema();
+    try {
+        $json = new Composer\JSON\JsonFile($jsonFile);
+        $json->validateSchema();
+    } catch (\Exception $e) {
+        echo "The composer.json for {$repo->getName()} is invalid: " . PHP_EOL;
+        echo $e;
+
+        continue;
+    }
 }
