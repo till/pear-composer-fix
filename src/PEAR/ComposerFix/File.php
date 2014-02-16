@@ -35,7 +35,7 @@ class File
                 $this->updateIgnore();
             } catch (\RuntimeException $e) {
                 // skip for now
-                echo "Skipped: {$missing} for {$this->name}" . PHP_EOL;
+                //echo "Skipped: {$missing} for {$this->name}" . PHP_EOL;
             }
         }
 

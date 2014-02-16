@@ -5,6 +5,9 @@ class ComposerFix
 {
     private $config;
 
+    /**
+     * @var ComposerFix\Repository
+     */
     private $currentRepository;
 
     private $descriptors;
