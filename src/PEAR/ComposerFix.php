@@ -67,6 +67,12 @@ class ComposerFix
         return $this->config['token'];
     }
 
+    public function setRepository(ComposerFix\Repository $repository)
+    {
+        $this->currentRepository = $repository;
+        return $this;
+    }
+
     private function execute($command, $cwd, &$output = false)
     {
         $descriptors = $this->descriptors;
