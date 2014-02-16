@@ -16,9 +16,9 @@ $client->authenticate($fix->getToken(), null, Client::AUTH_URL_TOKEN);
 $repoApi = new ComposerFix\RepoApi($client);
 
 $repositories = $repoApi->getAllRepositories($fix->getOrg());
-foreach ($repositories as $repository) {
+foreach ($repositories as $repositoryData) {
 
-    $repo = new ComposerFix\Repository($repository, $fix->getStore());
+    $repo = new ComposerFix\Repository($repositoryData, $fix->getStore());
 
     if (!$repo->isProcessable()) {
         continue;
