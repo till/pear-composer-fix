@@ -8,6 +8,12 @@ class File
     private $repo;
     private $name;
 
+    /**
+     * Internal table to cache parsed XML.
+     * @var array
+     */
+    private $parsed = [];
+
     public function __construct(Repository $repo, $file, array $missing = [])
     {
         $this->file = $file;
@@ -178,7 +184,14 @@ class File
      */
     private function parsePackageXml()
     {
-        $packageXml = $this->getGitRepo() . '/package.xml';
+        $repo = $this->getGitRepo();
+
+        $cacheKey = md5($repo);
+        if (isset($this->parsed[$cacheKey])) {
+            return $this->parsed[$cacheKey];
+        }
+
+        $packageXml = $repo . '/package.xml';
         if (!file_exists($packageXml)) {
             throw new \RuntimeException("No package.xml found: {$this->name}.");
         }
@@ -186,6 +199,7 @@ class File
         if (false === $xml) {
             throw new \RuntimeException("Empty or mal-formed package.xml found: {$this->name}");
         }
-        return $xml;
+
+        return $this->parsed[$cacheKey] = $xml;
     }
 }
