@@ -36,13 +36,7 @@ class ComposerFix
             $cwd = $this->getStore();
         }
 
-        $process = proc_open($command, $this->descriptors, $pipes, $cwd);
-        if (!is_resource($process)) {
-            echo PHP_EOL . "Failed to start: {$command}";
-            exit(2);
-        }
-
-        $status = proc_close($process);
+        $status = $this->execute($command, $cwd);
         if ($status !== 0) {
             echo "Command failed for {$this->currentRepository->getName()}: {$command}" . PHP_EOL;
             exit(3);
@@ -71,5 +65,27 @@ class ComposerFix
     public function getToken()
     {
         return $this->config['token'];
+    }
+
+    private function execute($command, $cwd, &$output = false)
+    {
+        $descriptors = $this->descriptors;
+        if (false !== $output) {
+            $descriptors[1] = ['pipe', 'w'];
+        }
+
+        $process = proc_open($command, $descriptors, $pipes, $cwd);
+        if (!is_resource($process)) {
+            echo PHP_EOL . "Failed to start: {$command}";
+            exit(2);
+        }
+
+        if (false !== $output) {
+            $output = stream_get_contents($pipes[1]);
+            fclose($pipes[1]);
+        }
+
+        $status = proc_close($process);
+        return $status;
     }
 }
