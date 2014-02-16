@@ -153,7 +153,9 @@ class File
                 }
             }
         }
-        throw new \DomainException("Cannot find license of {$this->name}");
+
+        // this is unfortunate - the code is probably PHP licensed?
+        throw new \RuntimeException("Cannot find license of {$this->name}");
     }
 
     private function getGitRepo()
