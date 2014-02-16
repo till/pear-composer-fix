@@ -22,11 +22,7 @@ class RepoApi extends Api\User
 
         $path = 'orgs/' . rawurlencode($org) . '/repos';
 
-        $response = $this->client->getHttpClient()->get(
-            $path,
-            $parameters,
-            []
-        );
+        $response = $this->makeRequest($path, $parameters);
 
         if (null === $lastPage) {
             $lastPage = $this->getLastPage($response->getHeader('link'));
@@ -38,13 +34,10 @@ class RepoApi extends Api\User
 
         while ($parameters['page'] <= $lastPage) {
 
-            var_dump(http_build_query($parameters));
+            //var_dump(http_build_query($parameters));
 
-            $response = $this->client->getHttpClient()->get(
-                $path,
-                $parameters,
-                []
-            );
+            $response = $this->makeRequest($path, $parameters);
+
             $repositories = array_merge($repositories, Message\ResponseMediator::getContent($response));
 
             $parameters['page']++;
@@ -62,5 +55,21 @@ class RepoApi extends Api\User
         $queryString = parse_url($data['url'], \PHP_URL_QUERY);
         parse_str($queryString); // LOL
         return $page;
+    }
+
+    /**
+     * @param string $path
+     * @param array $parameters
+     *
+     * @return \Guzzle\Http\Message\Response
+     */
+    private function makeRequest($path, array $parameters)
+    {
+        $response = $this->client->getHttpClient()->get(
+            $path,
+            $parameters,
+            []
+        );
+        return $response;
     }
 }
