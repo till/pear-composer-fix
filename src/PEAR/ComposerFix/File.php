@@ -38,7 +38,57 @@ class File
             }
         }
 
+        $this->addRequire($composer);
+
+        if (!isset($composer['require-dev'])) {
+            $composer['require-dev'] = [
+                'phpunit/phpunit' => '*',
+            ];
+        }
+
         file_put_contents($this->file, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    }
+
+    private function addRequire(&$composer)
+    {
+        $xml = $this->parsePackageXml();
+        if (!property_exists($xml, 'dependencies')) {
+            return;
+        }
+
+        $require = [];
+
+        $dependencies = $xml->dependencies;
+
+        if (property_exists($dependencies, 'required')) {
+
+            $required = $dependencies->required;
+
+            // add require
+            if (property_exists($required, 'php')) {
+                unset($dependencies->required->php);
+            }
+            if (property_exists($required, 'pearinstaller')) {
+                unset($required->pearinstaller);
+                $require['pear/exception'] = '*';
+            }
+            foreach ($required->attributes() as $foo => $bar) {
+                var_dump($foo, $bar); exit;
+            }
+        }
+        if (property_exists($dependencies, 'optional')) {
+            // add suggest
+
+        }
+
+        if (empty($require)) {
+            return;
+        }
+
+        if (!isset($composer['require'])) {
+            $composer['require'] = [];
+        }
+        $composer['require'] = array_merge($composer['require'], $require);
     }
 
     private function create($key)
