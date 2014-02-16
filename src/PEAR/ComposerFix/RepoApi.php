@@ -14,7 +14,7 @@ class RepoApi extends Api\User
     {
         $parameters = [
             'page' => 1,
-            'per_page' => 200,
+            'per_page' => 100,
             'type' => 'all',
         ];
 

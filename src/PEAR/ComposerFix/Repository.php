@@ -50,7 +50,7 @@ class Repository
 
     public function getUrl()
     {
-        return $this->data['clone_url'];
+        return $this->data['ssh_url'];
     }
 
     public function isFork()
