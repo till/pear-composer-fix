@@ -88,6 +88,11 @@ class ComposerFix
             return false;
         }
 
+        // check if we already ran updates
+        if ($this->hasBranch()) {
+            return false;
+        }
+
         // check for un-committed changes
         $command = "git diff --exit-code";
         $process = $this->execute($command, $cwd);
@@ -139,6 +144,29 @@ class ComposerFix
         return $process;
     }
 
+    /**
+     * Check if the branch is available locally or remote.
+     */
+    private function hasBranch()
+    {
+        $branch = $this->config['branch'];
+        $cwd = $this->getTarget($this->currentRepository->getName());
+
+        $process = $this->execute("git show-branch {$branch}", $cwd);
+        if ($process->isSuccessful()) {
+            return true;
+        }
+
+        $remote = "origin"; // this is an assumption
+
+        // fetch origin in case no local branch was found
+        $process = $this->execute("git show-branch -r {$remote}/{$branch}", $cwd);
+        if ($process->isSuccessful()) {
+            return true;
+        }
+
+        return false;
+    }
     /**
      * Neat situation: empty repository which the Github API says has been pushed to.
      *

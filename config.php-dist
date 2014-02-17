@@ -1,5 +1,6 @@
 <?php
 return [
+    'branch' => 'topics/composer-for-pear',
     'org' => 'pear',
     'store' => __DIR__ . '/storage',
     'token' => 'xxx',
