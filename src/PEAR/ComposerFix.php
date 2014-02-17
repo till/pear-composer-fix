@@ -29,11 +29,23 @@ class ComposerFix
                 return;
             }
 
-            $commands = [
-                'git clean -f',
-                'git reset --hard origin/' . $this->currentRepository->getBranch(),
-                'git pull origin ' . $this->currentRepository->getBranch(),
-            ];
+            $branch = $this->currentRepository->getBranch();
+
+            $commands = [];
+
+            if ($this->hasBranch()) {
+                $branch = $this->config['branch'];
+                $commands[] = 'git checkout ' . $branch;
+            }
+
+            $commands = array_merge(
+                $commands,
+                [
+                    'git clean -f',
+                    'git reset --hard origin/' . $branch,
+                    'git pull origin ' . $branch,
+                ]
+            );
             $command = implode(' && ', $commands);
 
         } else {
@@ -114,9 +126,9 @@ class ComposerFix
         }
 
         // check if we already ran updates
-        if ($this->hasBranch()) {
-            return false;
-        }
+        //if ($this->hasBranch()) {
+        //    return false;
+        //}
 
         // check for un-committed changes
         $command = "git diff --exit-code";
