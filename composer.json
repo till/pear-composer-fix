@@ -10,7 +10,8 @@
     "name": "till/pear-composer-fix",
     "prefer-stable": true,
     "require": {
+        "composer/composer": "@dev",
         "knplabs/github-api": "*",
-        "composer/composer": "@dev"
+        "symfony/process": "2.4.*"
     }
 }

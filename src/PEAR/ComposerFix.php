@@ -1,6 +1,8 @@
 <?php
 namespace PEAR;
 
+use Symfony\Component\Process\Process;
+
 class ComposerFix
 {
     private $config;
@@ -10,16 +12,9 @@ class ComposerFix
      */
     private $currentRepository;
 
-    private $descriptors;
-
-    public function __construct(array $config, $errorLog)
+    public function __construct(array $config)
     {
         $this->config = $config;
-        $this->descriptors = [
-            ['file', '/dev/null', 'r'],
-            ['file', '/dev/null', 'w'],
-            ['file', $errorLog, 'w'],
-        ];
     }
 
     public function cloneOrUpdate()
@@ -46,10 +41,12 @@ class ComposerFix
             $cwd = $this->getStore();
         }
 
-        $status = $this->execute($command, $cwd);
-        if ($status !== 0) {
+        $process = $this->execute($command, $cwd);
+        if (!$process->isSuccessful()) {
             echo "Command failed for {$this->currentRepository->getName()}: {$command}" . PHP_EOL;
-            exit(3);
+            echo $process->getOutput() . PHP_EOL;
+            echo $process->getErrorOutput() . PHP_EOL;
+            exit($process->getExitCode());
         }
     }
 
@@ -93,18 +90,22 @@ class ComposerFix
 
         // check for un-committed changes
         $command = "git diff --exit-code";
-        $status = $this->execute($command, $cwd);
-        if ($status > 0) {
+        $process = $this->execute($command, $cwd);
+        if (!$process->isSuccessful()) {
             return true;
         }
 
         // check for un-staged files
         $command = "git ls-files . --exclude-standard --others";
-        $status = $this->execute($command, $cwd, $output);
-        if (0 !== $status) {
-            throw new \RuntimeException("Command for {$this->currentRepository->getName()} failed: {$command}");
+        $process = $this->execute($command, $cwd);
+
+        if (!$process->isSuccessful()) {
+            $msg  = "Command for {$this->currentRepository->getName()} failed: {$command}" . PHP_EOL;
+            $msg .= "Error: {$process->getErrorOutput()}" . PHP_EOL;
+            throw new \RuntimeException($msg);
         }
 
+        $output = $process->getOutput();
         if (!empty($output)) {
             return true;
         }
@@ -125,26 +126,17 @@ class ComposerFix
         return $this;
     }
 
-    private function execute($command, $cwd, &$output = false)
+    /**
+     * @param string $command
+     * @param string $cwd
+     *
+     * @return Process
+     */
+    private function execute($command, $cwd)
     {
-        $descriptors = $this->descriptors;
-        if (false !== $output) {
-            $descriptors[1] = ['pipe', 'w'];
-        }
-
-        $process = proc_open($command, $descriptors, $pipes, $cwd);
-        if (!is_resource($process)) {
-            echo PHP_EOL . "Failed to start: {$command}";
-            exit(2);
-        }
-
-        if (false !== $output) {
-            $output = stream_get_contents($pipes[1]);
-            fclose($pipes[1]);
-        }
-
-        $status = proc_close($process);
-        return $status;
+        $process = new Process($command, $cwd);
+        $process->run();
+        return $process;
     }
 
     /**
@@ -156,8 +148,8 @@ class ComposerFix
      */
     private function isEmpty($cwd)
     {
-        $status = $this->execute("git log", $cwd);
-        if (0 !== $status) {
+        $process = $this->execute("git log", $cwd);
+        if (!$process->isSuccessful()) {
             return true;
         }
         return false;
