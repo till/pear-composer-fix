@@ -142,9 +142,10 @@ class File
         case 'autoload':
             if ($this->isPSR0()) {
                 $includePath = $this->create('include-path');
+                $dir = explode('_', $this->name);
                 return [
                     'psr-0' => [
-                        $this->name => $includePath[0],
+                        $dir[0] => $includePath[0],
                     ],
                 ];
             }
