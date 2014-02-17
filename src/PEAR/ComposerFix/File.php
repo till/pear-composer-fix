@@ -88,7 +88,7 @@ class File
             if (property_exists($xmlRequired, 'package')) {
                 $require = array_merge(
                     $require,
-                    $this->createDependencies($xmlRequired->package, $channel, $vendorPrefix, 'require')
+                    $this->createDependencies($xmlRequired, $channel, $vendorPrefix, 'require')
                 );
             }
         }
