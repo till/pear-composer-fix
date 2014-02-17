@@ -68,7 +68,7 @@ class File
             throw new \DomainException("Unknown channel: {$channel}");
         }
 
-        $require = [];
+        $composerRequire = [];
 
         $dependencies = $xml->dependencies;
 
@@ -82,12 +82,12 @@ class File
             }
             if (property_exists($xmlRequired, 'pearinstaller')) {
                 unset($xmlRequired->pearinstaller);
-                $require[$this->createPackageName($vendorPrefix, 'pear_exception')] = '*';
+                $composerRequire[$this->createPackageName($vendorPrefix, 'pear_exception')] = '*';
             }
 
             if (property_exists($xmlRequired, 'package')) {
-                $require = array_merge(
-                    $require,
+                $composerRequire = array_merge(
+                    $composerRequire,
                     $this->createDependencies($xmlRequired, $channel, $vendorPrefix, 'require')
                 );
             }
@@ -103,14 +103,14 @@ class File
             }
         }
 
-        if (empty($require)) {
+        if (empty($composerRequire)) {
             return;
         }
 
         if (!isset($composer['require'])) {
             $composer['require'] = [];
         }
-        $composer['require'] = array_merge($composer['require'], $require);
+        $composer['require'] = array_merge($composer['require'], $composerRequire);
     }
 
     private function create($key)
