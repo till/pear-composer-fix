@@ -58,6 +58,16 @@ class File
             return;
         }
 
+        $channel = $xml->channel;
+
+        switch ($channel) {
+        case 'pear.php.net':
+            $vendorPrefix = 'pear';
+            break;
+        default:
+            throw new \DomainException("Unknown channel: {$channel}");
+        }
+
         $require = [];
 
         $dependencies = $xml->dependencies;
@@ -154,6 +164,39 @@ class File
         case 'type':
             return 'library';
         }
+    }
+
+    private function createDependencies(\SimpleXMLElement $data, $defaultChannel, $vendorPrefix, $type)
+    {
+        $tree = [];
+
+        if (!property_exists($data, 'package')) {
+            throw new \DomainException("Missing 'package'.");
+        }
+
+        foreach ($data->package as $dep) {
+
+            if ((string)$dep->channel != $defaultChannel) {
+                continue;
+            }
+
+            $packageName = $this->createPackageName($vendorPrefix, (string)$dep->name);
+
+            if ('suggest' === $type) {
+                $tree[$packageName] = "Install optionally via your project's composer.json";
+            }
+
+            if ('require' === $type) {
+
+            }
+        }
+
+        return $tree;
+    }
+
+    private function createPackageName($vendor, $name)
+    {
+        return sprintf('%s/%s', $vendor, strtolower($name));
     }
 
     private function extract(&$author, $obj, $prop)
