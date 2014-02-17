@@ -66,12 +66,21 @@ class ComposerFix
     {
         $branch = $this->config['branch'];
 
-        $commands = [
-            "git checkout -b {$branch}",
-            "git add -A",
-            'git commit -a -m "Enhancement: composer setup"',
-            "git push origin {$branch}"
-        ];
+        $commands = [];
+        if ($this->hasBranch()) {
+            $commands[] = "git checkout {$branch}";
+        } else {
+            $commands[] = "git checkout -b {$branch}";
+        }
+
+        $commands = array_merge(
+            $commands,
+            [
+                "git add -A",
+                'git commit -a -m "Enhancement: composer setup"',
+                "git push origin {$branch}"
+            ]
+        );
 
         $cwd = $this->getTarget($this->currentRepository->getName());
 

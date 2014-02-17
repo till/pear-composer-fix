@@ -22,8 +22,12 @@ class File
         $this->repo = $repo;
     }
 
-    public function fix()
+    public function fix($missing = null)
     {
+        if (null !== $missing) {
+            $this->missing[] = $missing;
+        }
+
         $composer = [];
         if (file_exists($this->file)) {
             $composer = json_decode(file_get_contents($this->file), true);
