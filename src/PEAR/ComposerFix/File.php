@@ -97,7 +97,10 @@ class File
 
             $optional = $dependencies->optional;
 
-            $composer['suggest'] = $this->createDependencies($optional, $channel, $vendorPrefix, 'suggest');
+            $suggest = $this->createDependencies($optional, $channel, $vendorPrefix, 'suggest');
+            if (!empty($suggest)) {
+                $composer['suggest'] = $suggest;
+            }
         }
 
         if (empty($require)) {
