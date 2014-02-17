@@ -244,7 +244,11 @@ class File
 
         $packageXml = $repo . '/package.xml';
         if (!file_exists($packageXml)) {
-            throw new \RuntimeException("No package.xml found: {$this->name}.");
+            $packageXml = $repo . '/package2.xml';
+        }
+
+        if (!file_exists($packageXml)) {
+            throw new \RuntimeException("No package[2].xml found: {$this->name}.");
         }
         $xml = @simplexml_load_file($packageXml);
         if (false === $xml) {

@@ -81,11 +81,16 @@ class Repository
     {
         $repo = sprintf('%s/%s', $this->store, $this->getName());
 
-        $packageXml = $repo . '/package.xml';
-        if (!file_exists($packageXml)) {
-            return false;
+        $foundPackageXml = false;
+
+        foreach (['package.xml', 'package2.xml'] as $xml) {
+            if (file_exists($repo . '/' . $xml) && 0 < filesize($repo . '/' . $xml)) {
+                $foundPackageXml = true;
+                break;
+            }
         }
-        if (0 == filesize($packageXml)) {
+
+        if (false === $foundPackageXml) {
             return false;
         }
 
