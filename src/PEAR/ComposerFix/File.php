@@ -89,8 +89,10 @@ class File
             }
         }
         if (property_exists($dependencies, 'optional')) {
-            // add suggest
 
+            $optional = $dependencies->optional;
+
+            $composer['suggest'] = $this->createDependencies($optional, $channel, $vendorPrefix, 'suggest');
         }
 
         if (empty($require)) {
