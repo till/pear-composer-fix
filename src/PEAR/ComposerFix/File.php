@@ -93,7 +93,6 @@ class File
             }
         }
 
-
         if (property_exists($dependencies, 'optional')) {
 
             $optional = $dependencies->optional;
@@ -235,6 +234,14 @@ class File
         return $tree;
     }
 
+    /**
+     * Composer style package name: vendor/library
+     *
+     * @param string $vendor
+     * @param string $name
+     *
+     * @return string
+     */
     private function createPackageName($vendor, $name)
     {
         return sprintf('%s/%s', $vendor, strtolower($name));
@@ -315,6 +322,11 @@ class File
         throw new \RuntimeException("Cannot find license of {$this->name}");
     }
 
+    /**
+     * Short-hand to find the git repository.
+     *
+     * @return string
+     */
     private function getGitRepo()
     {
         return dirname($this->file);
@@ -330,9 +342,13 @@ class File
     }
 
     /**
+     * Parses the XML for author data, and adds it to authors.
+     *
      * @param mixed  $data
      * @param array  $authors
      * @param string $defaultRole
+     *
+     * @return void
      */
     private function parseAuthorData($data, &$authors, $defaultRole = 'Lead')
     {
@@ -359,6 +375,8 @@ class File
     }
 
     /**
+     * Parse and cache the XML.
+     *
      * @return \SimpleXMLElement
      * @throws \RuntimeException
      */
