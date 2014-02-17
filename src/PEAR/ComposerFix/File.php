@@ -250,6 +250,13 @@ class File
         }
     }
 
+    /**
+     * Parses package.xml v1 and v2 for maintainer, helper, etc. data.
+     *
+     * @param \SimpleXMLElement $xml
+     *
+     * @return array
+     */
     private function findAuthors(\SimpleXMLElement $xml)
     {
         $authors = [];
@@ -277,6 +284,15 @@ class File
         return $authors;
     }
 
+    /**
+     * Find license data from package.xml files.
+     *
+     * @param \SimpleXMLElement $xml
+     *
+     * @return string
+     * @throws \RuntimeException
+     * @todo Maybe normalize?!
+     */
     private function findLicense(\SimpleXMLElement $xml)
     {
         if (property_exists($xml, 'license')) {
