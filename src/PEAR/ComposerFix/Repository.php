@@ -10,6 +10,7 @@ class Repository
         'include-path',
         'license',
         'name',
+        'support',
         'type',
     ];
 

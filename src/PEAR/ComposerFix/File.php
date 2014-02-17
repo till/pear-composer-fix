@@ -168,6 +168,15 @@ class File
                 strtolower($this->repo->getOrg()),
                 strtolower($this->name)
             );
+        case 'support':
+            $xml = $this->parsePackageXml();
+            $packageName = (string) $xml->name;
+            $channel = (string) $xml->channel;
+
+            return [
+                "issues" => "http://{$channel}/bugs/search.php?cmd=display&package_name[]={$packageName}",
+                "source" => "https://github.com/{$this->repo->getOrg()}/{$packageName}",
+            ];
         case 'type':
             return 'library';
         }
