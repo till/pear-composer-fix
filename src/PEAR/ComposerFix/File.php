@@ -86,7 +86,6 @@ class File
             }
             if (property_exists($xmlRequired, 'pearinstaller')) {
                 unset($xmlRequired->pearinstaller);
-                $composerRequire[$this->createPackageName($vendorPrefix, 'pear_exception')] = '*';
             }
 
             if (property_exists($xmlRequired, 'package')) {
@@ -239,10 +238,6 @@ class File
                 }
                 $tree['ext-' . strtolower($name)] = $version;
                 continue;
-            }
-
-            if ('PEAR_Exception' === $name) {
-                continue; // handled one level up
             }
 
             if ($channel !== $defaultChannel) {
