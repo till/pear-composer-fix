@@ -203,7 +203,13 @@ class File
         if (!property_exists($data, $key)) {
             $key = 'extension'; // PHP extension :]
             if (!property_exists($data, $key)) {
-                throw new \DomainException("Missing 'package' or 'extension'.");
+                throw new \DomainException(
+                    sprintf(
+                        "Missing 'package' or 'extension in %s/%s'.",
+                        $this->repo->getOrg(),
+                        $this->repo->getName()
+                    )
+                );
             }
         }
 

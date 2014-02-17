@@ -55,12 +55,19 @@ foreach ($repositories as $repositoryData) {
 
     $jsonFile = $fix->getTarget($repo->getName()) . '/composer.json';
 
-    $file = new ComposerFix\File(
-        $repo,
-        $jsonFile,
-        $repo->getMissing()
-    );
-    $file->fix();
+    try {
+        $file = new ComposerFix\File(
+            $repo,
+            $jsonFile,
+            $repo->getMissing()
+        );
+        $file->fix();
+    } catch (\DomainException $e) {
+        echo "e";
+
+        $errors[] = $e->getMessage();
+        continue;
+    }
 
     try {
         $json = new Composer\JSON\JsonFile($jsonFile);
