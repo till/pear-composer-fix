@@ -174,21 +174,54 @@ class File
         }
     }
 
+    /**
+     * Create the JSON structure from the XML.
+     *
+     * Should support required and optional pear packages and PHP extensions.
+     *
+     * @param \SimpleXMLElement $data
+     * @param string            $defaultChannel
+     * @param string            $vendorPrefix
+     * @param string            $type
+     *
+     * @return array
+     * @throws \DomainException
+     */
     private function createDependencies(\SimpleXMLElement $data, $defaultChannel, $vendorPrefix, $type)
     {
         $tree = [];
 
-        if (!property_exists($data, 'package')) {
-            throw new \DomainException("Missing 'package'.");
+        $key = 'package';
+        if (!property_exists($data, $key)) {
+            $key = 'extension'; // PHP extension :]
+            if (!property_exists($data, $key)) {
+                throw new \DomainException("Missing 'package' or 'extension'.");
+            }
         }
 
-        foreach ($data->package as $dep) {
+        foreach ($data->$key as $dep) {
 
-            if ((string)$dep->channel != $defaultChannel) {
+            $name = (string) $dep->name;
+            $channel = (string) $dep->channel;
+
+            if ('extension' == $key) {
+                $version = '*';
+                if ('suggest' === $type) {
+                    $version = 'May require the ' . $name . ' PHP extension';
+                }
+                $tree['ext-' . strtolower($name)] = $version;
                 continue;
             }
 
-            $packageName = $this->createPackageName($vendorPrefix, (string)$dep->name);
+            if ('PEAR_Exception' === $name) {
+                continue; // handled one level up
+            }
+
+            if ($channel !== $defaultChannel) {
+                continue;
+            }
+
+            $packageName = $this->createPackageName($vendorPrefix, $name);
 
             if ('suggest' === $type) {
                 $tree[$packageName] = "Install optionally via your project's composer.json";
