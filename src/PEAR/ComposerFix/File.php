@@ -82,7 +82,7 @@ class File
             }
             if (property_exists($xmlRequired, 'pearinstaller')) {
                 unset($xmlRequired->pearinstaller);
-                $require[$this->createPackageName($vendorPrefix, 'exception')] = '*';
+                $require[$this->createPackageName($vendorPrefix, 'pear_exception')] = '*';
             }
 
             if (property_exists($xmlRequired, 'package')) {
