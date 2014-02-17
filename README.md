@@ -17,7 +17,3 @@ $ ./composer.phar install
 $ ./script.php
 ```
 
-## Todo
-
- * open PR (probably using hub)
-
