@@ -58,7 +58,7 @@ class File
             return;
         }
 
-        $channel = $xml->channel;
+        $channel = (string) $xml->channel;
 
         switch ($channel) {
         case 'pear.php.net':
@@ -217,7 +217,13 @@ class File
             }
         }
 
-        foreach ($data->$key as $dep) {
+        $packages = $data->$key;
+        if (!is_array($data->$key)) {
+            $packages = [];
+            $packages[] = $data->$key;
+        }
+
+        foreach ($packages as $dep) {
 
             $name = (string) $dep->name;
             $channel = (string) $dep->channel;
@@ -246,7 +252,7 @@ class File
             }
 
             if ('require' === $type) {
-
+                $tree[$packageName] = '*';
             }
         }
 
