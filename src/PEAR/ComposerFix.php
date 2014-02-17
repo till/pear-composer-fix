@@ -182,11 +182,14 @@ class ComposerFix
             return true;
         }
 
-        $remote = "origin"; // this is an assumption
-
         // fetch origin in case no local branch was found
-        $process = $this->execute("git show-branch -r {$remote}/{$branch}", $cwd);
-        if ($process->isSuccessful()) {
+        $process = $this->execute("git show-branch -r --list", $cwd);
+        if (!$process->isSuccessful()) {
+            throw new \RuntimeException($process->getErrorOutput());
+        }
+
+        $branches = $process->getOutput();
+        if (strpos($branches, $branch)) {
             return true;
         }
 
