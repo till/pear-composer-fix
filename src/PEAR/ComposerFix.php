@@ -50,6 +50,31 @@ class ComposerFix
         }
     }
 
+    public function commit()
+    {
+        $branch = $this->config['branch'];
+
+        $commands = [
+            "git checkout -b {$branch}",
+            "git add -A",
+            'git commit -a -m "Enhancement: composer setup"',
+            "git push origin {$branch}"
+        ];
+
+        $cwd = $this->getTarget($this->currentRepository->getName());
+
+        foreach ($commands as $command) {
+            $process = $this->execute($command, $cwd);
+            if ($process->isSuccessful()) {
+                continue;
+            }
+
+            echo sprintf("Command failed: %s (%s)", $command, $this->currentRepository->getName());
+            echo $process->getErrorOutput();
+            exit($process->getExitCode());
+        }
+    }
+
     public function getOrg()
     {
         return $this->config['org'];

@@ -19,8 +19,5 @@ $ ./script.php
 
 ## Todo
 
- * branch when changes are found
- * commit changes
- * push branch
  * open PR (probably using hub)
 
