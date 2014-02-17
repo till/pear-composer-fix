@@ -294,10 +294,22 @@ class File
         if (file_exists($fileName)) {
             $ignoreFile .= file_get_contents($fileName);
             $ignoreFile .= "\n";
+
+            if (stripos($ignoreFile, 'composer')) {
+                return;
+            }
         }
+
+        $ignoreFile .= "# composer related\n";
 
         $filesToIgnore = ['composer.lock', 'composer.phar', 'vendor'];
         foreach ($filesToIgnore as $file) {
+
+            // double-check that we don't add duplicates
+            if (false !== stripos($ignoreFile, $file)) {
+                continue;
+            }
+
             $ignoreFile .= "{$file}\n";
         }
         file_put_contents($fileName, $ignoreFile);
