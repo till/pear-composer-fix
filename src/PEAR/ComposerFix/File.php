@@ -74,20 +74,26 @@ class File
 
         if (property_exists($dependencies, 'required')) {
 
-            $required = $dependencies->required;
+            $xmlRequired = $dependencies->required;
 
             // add require
-            if (property_exists($required, 'php')) {
-                unset($dependencies->required->php);
+            if (property_exists($xmlRequired, 'php')) {
+                unset($xmlRequired->php);
             }
-            if (property_exists($required, 'pearinstaller')) {
-                unset($required->pearinstaller);
-                $require['pear/exception'] = '*';
+            if (property_exists($xmlRequired, 'pearinstaller')) {
+                unset($xmlRequired->pearinstaller);
+                $require[$this->createPackageName($vendorPrefix, 'exception')] = '*';
             }
-            foreach ($required->attributes() as $foo => $bar) {
-                var_dump($foo, $bar); exit;
+
+            if (property_exists($xmlRequired, 'package')) {
+                $require = array_merge(
+                    $require,
+                    $this->createDependencies($xmlRequired->package, $channel, $vendorPrefix, 'require')
+                );
             }
         }
+
+
         if (property_exists($dependencies, 'optional')) {
 
             $optional = $dependencies->optional;
