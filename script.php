@@ -6,8 +6,7 @@ use Github\Client;
 use PEAR\ComposerFix;
 
 $fix = new ComposerFix(
-    require './config.php',
-    __DIR__ . '/logs/errors.log'
+    require './config.php'
 );
 
 $errors = [];

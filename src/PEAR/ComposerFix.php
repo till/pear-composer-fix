@@ -142,7 +142,9 @@ class ComposerFix
     /**
      * Neat situation: empty repository which the Github API says has been pushed to.
      *
-     * @param $cwd
+     * `git log` returns an error when executed on an empty repository.
+     *
+     * @param string $cwd
      *
      * @return bool
      */
