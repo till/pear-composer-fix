@@ -32,7 +32,6 @@ class File
         foreach ($this->missing as $missing) {
             try {
                 $composer[$missing] = $this->create($missing);
-                $this->updateIgnore();
             } catch (\RuntimeException $e) {
                 // skip for now
                 //echo "Skipped: {$missing} for {$this->name}" . PHP_EOL;
@@ -48,6 +47,8 @@ class File
         }
 
         file_put_contents($this->file, json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+        $this->updateIgnore();
     }
 
     private function addRequire(&$composer)
