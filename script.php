@@ -5,9 +5,13 @@ require 'vendor/autoload.php';
 use Github\Client;
 use PEAR\ComposerFix;
 
-$fix = new ComposerFix(
-    require './config.php'
-);
+if (!file_exists(__DIR__ . '/config.php')) {
+    echo "Please setup `config.php`" . PHP_EOL;
+    exit(1);
+}
+
+$config = require __DIR__ . '/config.php';
+$fix = new ComposerFix($config);
 
 $errors = [];
 
