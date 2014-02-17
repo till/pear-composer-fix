@@ -159,38 +159,37 @@ class File
     private function extract(&$author, $obj, $prop)
     {
         if (property_exists($obj, $prop)) {
+            if (!property_exists($obj, $prop)) {
+                return;
+            }
             $author[$prop] = (string) $obj->$prop;
         }
     }
 
     private function findAuthors(\SimpleXMLElement $xml)
     {
-        if (!property_exists($xml, 'maintainers')) {
-            return [];
-        }
-        if (empty($xml->maintainers)) {
-            return [];
-        }
         $authors = [];
-        foreach ($xml->maintainers as $maintainer) {
-            $user = $maintainer->maintainer;
 
-            $author = [];
-
-            $this->extract($author, $user, 'email');
-            $this->extract($author, $user, 'name');
-            $this->extract($author, $user, 'role');
-
-            if (property_exists($xml, 'channel')) {
-                $author['homepage'] = sprintf(
-                    'http://%s/user/%s',
-                    (string) $xml->channel,
-                    (string) $user->user
-                );
+        if (property_exists($xml, 'maintainers')) {
+            if (empty($xml->maintainers)) {
+                return $authors;
             }
+            $data = $xml->maintainers;
 
-            array_push($authors, $author);
+            $this->parseAuthorData($data, $authors);
+            return $authors;
         }
+
+        foreach (['lead', 'developer', 'helper'] as $role) {
+            if (property_exists($xml, $role)) {
+                if (empty($xml->$role)) {
+                    continue;
+                }
+                $data = $xml->$role;
+                $this->parseAuthorData($data, $authors, $role);
+            }
+        }
+
         return $authors;
     }
 
@@ -228,6 +227,35 @@ class File
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param mixed  $data
+     * @param array  $authors
+     * @param string $defaultRole
+     */
+    private function parseAuthorData($data, &$authors, $defaultRole = 'Lead')
+    {
+        foreach ($data as $maintainer) {
+
+            if (property_exists($maintainer, 'maintainer')) {
+                $user = $maintainer->maintainer;
+            } else {
+                $user = $maintainer;
+            }
+
+            $this->extract($author, $user, 'email');
+            $this->extract($author, $user, 'name');
+            $this->extract($author, $user, 'role');
+
+            if (!isset($author['role'])) {
+                $author['role'] = $defaultRole;
+            }
+
+            $author['role'] = ucfirst($author['role']);
+
+            array_push($authors, $author);
+        }
     }
 
     /**
