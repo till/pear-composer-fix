@@ -81,7 +81,7 @@ foreach ($repositories as $repositoryData) {
 
     echo ".";
 
-    // branch, commit, push?
+    $fix->commit();
 }
 
 foreach ($errors as $error) {
