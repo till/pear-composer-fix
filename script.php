@@ -86,9 +86,22 @@ foreach ($repositories as $repositoryData) {
         continue;
     }
 
-    echo ".";
-
     $fix->commit();
+
+    /** @var \Github\Api\PullRequest $pullRequest */
+    $pullRequest = $client->api('pr');
+    $pullRequest->create(
+        $repo->getOrg(),
+        $repo->getName(),
+        [
+            'base' => $repo->getBranch(),
+            'body' => 'See diff for full changes',
+            'head' => $config['branch'],
+            'title' => 'Updated/New Composer support for ' . $repo->getName(),
+        ]
+    );
+
+    echo ".";
 }
 
 foreach ($errors as $error) {
