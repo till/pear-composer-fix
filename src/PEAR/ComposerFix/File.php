@@ -64,14 +64,6 @@ class File
 
         $channel = (string) $xml->channel;
 
-        switch ($channel) {
-        case 'pear.php.net':
-            $vendorPrefix = 'pear';
-            break;
-        default:
-            throw new \DomainException("Unknown channel: {$channel}");
-        }
-
         $composerRequire = [];
 
         $dependencies = $xml->dependencies;
@@ -91,7 +83,7 @@ class File
             if (property_exists($xmlRequired, 'package')) {
                 $composerRequire = array_merge(
                     $composerRequire,
-                    $this->createDependencies($xmlRequired, $channel, $vendorPrefix, 'require')
+                    $this->createDependencies($xmlRequired, $channel, 'require')
                 );
             }
         }
@@ -100,7 +92,7 @@ class File
 
             $optional = $dependencies->optional;
 
-            $suggest = $this->createDependencies($optional, $channel, $vendorPrefix, 'suggest');
+            $suggest = $this->createDependencies($optional, $channel, 'suggest');
             if (!empty($suggest)) {
                 $composer['suggest'] = $suggest;
             }
@@ -196,15 +188,22 @@ class File
      *
      * @param \SimpleXMLElement $data
      * @param string            $defaultChannel
-     * @param string            $vendorPrefix
      * @param string            $type
      *
      * @return array
      * @throws \DomainException
      */
-    private function createDependencies(\SimpleXMLElement $data, $defaultChannel, $vendorPrefix, $type)
+    private function createDependencies(\SimpleXMLElement $data, $defaultChannel, $type)
     {
         $tree = [];
+
+        switch ($defaultChannel) {
+        case 'pear.php.net':
+            $vendorPrefix = 'pear';
+            break;
+        default:
+            throw new \DomainException("Unknown channel: {$defaultChannel}");
+        }
 
         $key = 'package';
         if (!property_exists($data, $key)) {
