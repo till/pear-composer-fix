@@ -2,6 +2,7 @@
 return [
     'branch' => 'topics/composer-for-pear',
     'org' => 'pear',
+    'root' => __DIR__,
     'store' => __DIR__ . '/storage',
     'token' => 'xxx',
 ];

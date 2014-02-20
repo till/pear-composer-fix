@@ -33,5 +33,6 @@ $include = [];
 
 $console = new ComposerFix\Application('pear-composer-fix', `git rev-parse --verify HEAD`);
 $console->add(new ComposerFix\Command\AddComposer());
+$console->add(new ComposerFix\Command\MergePR());
 $console->setContainer($container);
 $console->run();
