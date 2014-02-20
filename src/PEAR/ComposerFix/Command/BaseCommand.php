@@ -6,22 +6,34 @@ use Symfony\Component\Console;
 abstract class BaseCommand extends Console\Command\Command
 {
     /**
+     * @var array
+     */
+    protected $container;
+
+    /**
+     * @var \PEAR\ComposerFix
+     */
+    protected $fix;
+
+    protected function setUp()
+    {
+        $this->container = $this->getApplication()->getContainer();
+        $this->fix = $this->container['fix'];
+    }
+
+    /**
+     * @param Console\Output\OutputInterface $output
+     *
      * @return array
      */
-    protected function getAllRepositories()
+    protected function getAllRepositories(Console\Output\OutputInterface $output)
     {
-        $container = $this->getApplication()->getContainer();
-
-        /** @var \PEAR\ComposerFix $fix */
-        $fix = $container['fix'];
-
         /** @var \PEAR\ComposerFix\RepoApi $repoApi */
-        $repoApi = $container['github.api.repository'];
+        $repoApi = $this->container['github.api.repository'];
 
-        $repositories = $repoApi->getAllRepositories($fix->getOrg());
+        $repositories = $repoApi->getAllRepositories($this->fix->getOrg());
 
-        echo "Found: " . count($repositories) . PHP_EOL;
-        echo "Time: " . date('Y-m-d H:i:s') . PHP_EOL;
+        $output->writeln("<info>Repositories found: " . count($repositories) . "</info>");
 
         return $repositories;
     }

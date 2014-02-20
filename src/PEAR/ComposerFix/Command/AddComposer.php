@@ -11,11 +11,6 @@ class AddComposer extends BaseCommand
     protected $client;
 
     /**
-     * @var ComposerFix
-     */
-    protected $fix;
-
-    /**
      * @var array
      */
     protected $repositories;
@@ -30,15 +25,17 @@ class AddComposer extends BaseCommand
 
     protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
     {
-        $container = $this->getApplication()->getContainer();
+        $this->setUp();
+        $this->client = $this->container['github.client'];
 
-        $this->client = $container['github.client'];
-        $this->fix = $container['fix'];
-
-        $this->repositories = $this->getAllRepositories();
+        $this->repositories = $this->getAllRepositories($output);
 
         $errors = [];
         $count = 0;
+
+        $exclude = [];
+        $include = [];
+
         foreach ($this->repositories as $repositoryData) {
 
             ++$count;
