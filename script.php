@@ -61,10 +61,13 @@ foreach ($repositories as $repositoryData) {
             $jsonFile,
             $repo->getMissing()
         );
-        $file->fix();
+        $file->fix('autoload');
     } catch (\DomainException $e) {
         echo "e";
-
+        $errors[] = $e->getMessage();
+        continue;
+    } catch (\RuntimeException $e) {
+        echo "s";
         $errors[] = $e->getMessage();
         continue;
     }
