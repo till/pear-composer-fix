@@ -26,7 +26,6 @@ class AddComposer extends BaseCommand
     protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
     {
         $this->setUp();
-        $this->client = $this->container['github.client'];
 
         $this->repositories = $this->getAllRepositories($output);
 

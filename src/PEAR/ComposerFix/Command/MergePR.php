@@ -31,6 +31,11 @@ class MergePR extends BaseCommand
         $output->writeln("<info>Found " . count($unmaintained) . " unmaintained repositories.");
 
         $repositories = $this->getAllRepositories($output);
+        if (empty($repositories)) {
+            $output->writeln("<error>Couldn't find any repositories on github.com/{$organization}.");
+            return;
+        }
+
         foreach ($repositories as $repositoryData) {
             $repo = new ComposerFix\Repository(
                 $repositoryData,
@@ -42,7 +47,7 @@ class MergePR extends BaseCommand
             }
 
             /** @var \Github\Client $client */
-            $client = $this->container['github.client'];
+            $client = $this->client;
 
             /** @var Api\PullRequest $pullRequest */
             $pullRequest = $client->api('pr');

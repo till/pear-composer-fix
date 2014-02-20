@@ -11,25 +11,27 @@ if (!file_exists(__DIR__ . '/config.php')) {
 }
 
 $config = require __DIR__ . '/config.php';
-$fix = new ComposerFix($config);
 
 $errors = [];
 
-$client = new Client();
-$client->authenticate($fix->getToken(), null, Client::AUTH_URL_TOKEN);
-
-$repoApi = new ComposerFix\RepoApi($client);
-
 $container = [
     'config' => $config,
-    'fix' => $fix,
-    'github.client' => $client,
-    'github.api.repository' => $repoApi,
+    'fix' => function (array $config) {
+        return new ComposerFix($config);
+    },
+    'github.client' => function (ComposerFix $fix) {
+        $client = new Client();
+        $client->authenticate(
+            $fix->getToken(),
+            null,
+            Client::AUTH_URL_TOKEN
+        );
+        return $client;
+    },
+    'github.api.repository' => function ($client) {
+        return $repoApi = new ComposerFix\RepoApi($client);
+    },
 ];
-
-$exclude = [];
-
-$include = [];
 
 $console = new ComposerFix\Application('pear-composer-fix', `git rev-parse --verify HEAD`);
 $console->add(new ComposerFix\Command\AddComposer());

@@ -54,6 +54,7 @@ class ComposerFix
         }
 
         $process = $this->execute($command, $cwd);
+
         if (!$process->isSuccessful()) {
             echo "Command failed for {$this->currentRepository->getName()}: {$command}" . PHP_EOL;
             echo $process->getOutput() . PHP_EOL;
