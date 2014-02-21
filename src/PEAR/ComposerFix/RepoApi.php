@@ -10,37 +10,35 @@ use Guzzle\Http\Message\Header;
  */
 class RepoApi extends Api\User
 {
+    const THE_LAST_PAGE_OF_GITHUB = 10000000;
+
+    /**
+     * @param string $org
+     *
+     * @return array
+     */
     public function getAllRepositories($org)
     {
         $parameters = [
-            'page' => 1,
             'per_page' => 100,
             'type' => 'all',
         ];
 
-        $lastPage = null;
+        $lastPage = self::THE_LAST_PAGE_OF_GITHUB; // extreme
 
         $path = 'orgs/' . rawurlencode($org) . '/repos';
 
-        $response = $this->makeRequest($path, $parameters);
+        $repositories = [];
 
-        if (null === $lastPage) {
-            $lastPage = $this->getLastPage($response->getHeader('link'));
-        }
-
-        $parameters['page']++;
-
-        $repositories = Message\ResponseMediator::getContent($response);
-
-        while ($parameters['page'] <= $lastPage) {
-
-            //var_dump(http_build_query($parameters));
+        for ($parameters['page'] = 1; $parameters['page'] <= $lastPage; ++$parameters['page']) {
 
             $response = $this->makeRequest($path, $parameters);
+            if ($lastPage === self::THE_LAST_PAGE_OF_GITHUB) {
+                $lastPage = $this->getLastPage($response->getHeader('link'));
+            }
 
             $repositories = array_merge($repositories, Message\ResponseMediator::getContent($response));
 
-            $parameters['page']++;
         }
 
         return $repositories;

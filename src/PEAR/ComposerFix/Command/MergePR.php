@@ -18,31 +18,23 @@ class MergePR extends BaseCommand
     protected function execute(Console\Input\InputInterface $input, Console\Output\OutputInterface $output)
     {
         $this->setUp();
-        $root = $this->container['config']['root'];
-        $organization = $this->container['config']['org'];
 
-        $csv = $root . '/var/db/unmaintained-packages.csv';
-        $unmaintained = explode("\n", file_get_contents($csv));
-
-        if (empty($unmaintained)) {
-            throw new \RuntimeException("'$csv' seems empty.");
-        }
+        $unmaintained = $this->getUnmaintainedPackages();
 
         $output->writeln("<info>Found " . count($unmaintained) . " unmaintained repositories.");
 
         $repositories = $this->getAllRepositories($output);
-        if (empty($repositories)) {
-            $output->writeln("<error>Couldn't find any repositories on github.com/{$organization}.");
-            return;
-        }
 
         foreach ($repositories as $repositoryData) {
+
             $repo = new ComposerFix\Repository(
                 $repositoryData,
                 $this->fix->getStore()
             );
 
-            if (!in_array($repo->getName(), $unmaintained)) {
+            $name = $repo->getName();
+
+            if (!empty($unmaintained) && !in_array($name, $unmaintained)) {
                 continue;
             }
 
@@ -92,5 +84,19 @@ class MergePR extends BaseCommand
 
         $comment = "![Merged!]({$pic})";
         return $comment;
+    }
+
+    private function getUnmaintainedPackages()
+    {
+        return [];
+
+        $csv = $this->container['config']['root'] . '/var/db/unmaintained-packages.csv';
+
+        $unmaintained = explode("\n", file_get_contents($csv));
+        if (empty($unmaintained)) {
+            throw new \RuntimeException("'$csv' seems empty.");
+        }
+
+        return $unmaintained;
     }
 }

@@ -32,15 +32,18 @@ abstract class BaseCommand extends Console\Command\Command
      * @param Console\Output\OutputInterface $output
      *
      * @return array
+     * @throws \RuntimeException
      */
     protected function getAllRepositories(Console\Output\OutputInterface $output)
     {
         /** @var \PEAR\ComposerFix\RepoApi $repoApi */
         $repoApi = $this->container['github.api.repository']($this->client);
 
-        $repositories = $repoApi->getAllRepositories($this->fix->getOrg());
+        $organization = $this->container['config']['org'];
 
-        $output->writeln("<info>Repositories found: " . count($repositories) . "</info>");
+        $repositories = $repoApi->getAllRepositories($organization);
+
+        $output->writeln("<info>Loading repositories: " . count($repositories) . "</info>");
 
         return $repositories;
     }
