@@ -23,6 +23,16 @@ class MergePR extends BaseCommand
 
         $output->writeln("<info>Found " . count($unmaintained) . " unmaintained repositories.");
 
+        $organization = $this->container['config']['org'];
+
+        $commits = new ComposerFix\CommitApi($this->client);
+
+        /** @var ComposerFix\PullRequestApi $pullRequest */
+        $pullRequest = new ComposerFix\PullRequestApi($this->client);
+
+        /** @var Api\Issue\Comments $comments */
+        $issue = new Api\Issue\Comments($this->client);
+
         $repositories = $this->getAllRepositories($output);
 
         foreach ($repositories as $repositoryData) {
@@ -44,10 +54,12 @@ class MergePR extends BaseCommand
             /** @var Api\PullRequest $pullRequest */
             $pullRequest = $client->api('pr');
 
-            /** @var Api\Issue\Comments $comments */
-            $issue = new Api\Issue\Comments($client);
+            $openPRs = $pullRequest->getOpenFiltered(
+                $organization,
+                $name,
+                ['key' => 'title', 'value' => 'Updated/New Composer support for']
+            );
 
-            $openPRs = $pullRequest->all($organization, $repo->getName(), 'open');
             foreach ($openPRs as $openPR) {
 
                 $title = $openPR['title'];
@@ -58,10 +70,21 @@ class MergePR extends BaseCommand
                 $prId = $openPR['number']; // Eh!?
                 $issueId = $openPR['number'];
 
-                $comment = ['body' => $this->getComment()];
-                $issue->create($organization, $repo->getName(), $issueId, $comment);
+                $comment = ['body' => $this->getComment('auto merged')];
 
-                $pullRequest->merge($organization, $repo->getName(), $prId);
+                try {
+                    $issue->create(
+                        $organization,
+                        $name,
+                        $issueId,
+                        $comment
+                    );
+
+                    $pullRequest->merge($organization, $name, $prId);
+                } catch (\Exception $e) {
+                    var_dump($name, $openPR['title']);
+                    echo $e->getMessage(); exit;
+                }
             }
 
         }
@@ -70,7 +93,7 @@ class MergePR extends BaseCommand
     /**
      * Trolling.
      */
-    private function getComment()
+    private function getComment($text = null)
     {
         $pictures = [
             'http://s2.quickmeme.com/img/10/10f98000bac13ec26f5aebf9f2b2bf1e41a3104a9893f73dde9dd76cbce9daff.jpg',
@@ -83,6 +106,10 @@ class MergePR extends BaseCommand
         $pic = $pictures[mt_rand(0, (count($pictures) - 1))];
 
         $comment = "![Merged!]({$pic})";
+        if (null !== $text) {
+            $comment .= "\n\n" . $text;
+        }
+
         return $comment;
     }
 
