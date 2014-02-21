@@ -44,15 +44,24 @@ class MergePR extends BaseCommand
 
             $name = $repo->getName();
 
-            if (!empty($unmaintained) && !in_array($name, $unmaintained)) {
+            $commit = $commits->getLastCommit($organization, $name, $repo->getBranch());
+
+            $dateCommit = new \DateTime($commit['committer']['date']);
+            $dateNow = new \DateTime();
+
+            $dateDiff = $dateCommit->diff($dateNow);
+            if ($dateDiff->days <= 100) {
                 continue;
             }
 
-            /** @var \Github\Client $client */
-            $client = $this->client;
+            $unmaintained[] = $repo->getName();
 
-            /** @var Api\PullRequest $pullRequest */
-            $pullRequest = $client->api('pr');
+            if (empty($unmaintained)) {
+                continue;
+            }
+            if (!in_array($name, $unmaintained)) {
+                continue;
+            }
 
             $openPRs = $pullRequest->getOpenFiltered(
                 $organization,
@@ -62,10 +71,8 @@ class MergePR extends BaseCommand
 
             foreach ($openPRs as $openPR) {
 
-                $title = $openPR['title'];
-                if (false === strpos($title, 'Updated/New Composer support for')) {
-                    continue;
-                }
+                $output->writeln("Repository seems unmaintained for {$dateDiff->days} days: {$name}");
+                $output->writeln("Merging PR.");
 
                 $prId = $openPR['number']; // Eh!?
                 $issueId = $openPR['number'];
