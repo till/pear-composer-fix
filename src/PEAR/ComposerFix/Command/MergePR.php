@@ -42,6 +42,10 @@ class MergePR extends BaseCommand
                 $this->fix->getStore()
             );
 
+            if (!$repo->isProcessable()) {
+                continue;
+            }
+
             $name = $repo->getName();
 
             $commit = $commits->getLastCommit($organization, $name, $repo->getBranch());
